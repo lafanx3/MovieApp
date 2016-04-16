@@ -1,0 +1,156 @@
+﻿@{
+
+}
+@model CrudApp.Models.MovieViewModel
+<head>
+    @section Styles {
+        <link href="~/Theme/css/details.css" rel="stylesheet" />
+    }
+</head>
+<div class="intro-details">
+    <div ng-app="movieModule">
+        <div ng-controller="movieInfoController as dashboard">
+            <h2 class="text-left">{{dashboard.movieInfo.title}}</h2>
+            <h4 class="text-left">{{dashboard.movieInfo.release_date}}</h4>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img ng-src="https://image.tmdb.org/t/p/w500{{dashboard.movieInfo.poster_path}}" width="450" height="600" style="float:left;">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>{{dashboard.movieInfo.overview}}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="section-heading">Rate it!</h4>
+                                <uib-rating ng-model="dashboard.movieInfo.rating"></uib-rating>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-primary" ng-click="dashboard.addMovieToList()" ng-if="!dashboard.moviePresent">Add to Favorites</button>
+                                <button type="button" class="btn btn-primary" ng-click="dashboard.removeMovie()" ng-if="dashboard.moviePresent">Remove Movie</button>
+                                <button type="button" class="btn btn-primary" ng-click="dashboard.updateMovie()" ng-if="dashboard.moviePresent">Update Rating</button>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="~/" class="btn btn-primary">Back</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/Scripts/Services/movieModule.js"></script>
+    <script src="~/Scripts/Services/movieServices.js"></script>
+    <script type="text/javascript">
+
+        //controller creation
+        (function () {
+            "use strict"
+
+            angular.module("movieModule")
+                .controller("movieInfoController", MovieInfoController);
+
+            MovieInfoController.$inject = ["$scope", "$http", "toastr"];
+
+            function MovieInfoController($scope, $http, toastr) {
+                var vm = this;
+                vm.$scope = $scope;
+                vm.$http = $http;
+                vm.toastr=toastr;
+                vm.moviePresent=@Model.MoviePresent.ToString().ToLower();
+                vm.movieId=@Model.Id;
+                vm.movieInfo=null;
+
+
+                //callback functions
+                vm.getMovie = _getMovie;
+                vm.onSearchSuccess = _onSearchSuccess;
+                vm.addMovieToList=_addMovieToList;
+                vm.moviePostSuccess=_moviePostSuccess;
+                vm.moviePostError=_moviePostError;
+                vm.removeMovie=_removeMovie;
+                vm.movieRemovalSuccess=_movieRemovalSuccess;
+                vm.movieRemovalError=_movieRemovalError;
+                vm.updateMovie = _updateMovie;
+                vm.updateSuccess=_updateSuccess;
+                vm.updateError=_updateError;
+
+                //need to call this function on page load to make ajax call to retrieve specific movie and append movieid
+                function _getMovie() {
+                    return vm.$http({
+                        method: "GET",
+                        url: "/api/movie/getExternalMovie/" + vm.movieId
+                    }).then(vm.onSearchSuccess, vm.onSearchError);
+                }
+
+                _getMovie();
+
+                function _onSearchSuccess(response) {
+                    vm.movieInfo = response.data;
+                    vm.movieInfo.rating=@Model.Rating;
+                }
+
+                function _onSearchError(response) {
+                    vm.onSearchError = response.data;
+                }
+
+                function _addMovieToList(){
+                    return vm.$http({
+                        method:"POST",
+                        url:"/api/movie",
+                        data:vm.movieInfo
+                    }).then(vm.moviePostSuccess, vm.moviePostError)
+                }
+
+                function _moviePostSuccess(){
+                    vm.toastr.success("Movie added to Favorites","Success");
+                    console.log("movie inserted successfully");
+                    vm.moviePresent=true;
+                }
+
+                function _moviePostError(){
+                    vm.toastr.error("Movie was not added to Favorites","Error");
+                    console.log("insert failure");
+                }
+
+                function _removeMovie(){
+                    return vm.$http({
+                        //write service as well as api code to handle removal of movie from db.
+                        method:"DELETE",
+                        url:"/api/movie/deleteMovie/"+vm.movieId
+                    }).then(vm.movieRemovalSuccess, vm.movieRemovalError)
+                }
+
+                function _movieRemovalSuccess(){
+                    vm.toastr.info("Movie has been removed from your favorites.", "Information");
+                    console.log("movie deleted successfully");
+                    vm.moviePresent=false;
+                    vm.movieInfo.rating=0;
+                }
+
+                function _movieRemovalError(){
+                    console.log("delete failure");
+                }
+
+                function _updateMovie() {
+                    return vm.$http({
+                        method: "PUT",
+                        url: "/api/movie/update",
+                        data: vm.movieInfo
+                    }).then(vm.updateSuccess, vm.updateError);
+                };
+
+                function _updateSuccess() {
+                    vm.toastr.success("","Updated!");
+                }
+
+                function _updateError() {
+                    console.log("update failed");
+                }
+            }
+        })();
+    </script>
+}

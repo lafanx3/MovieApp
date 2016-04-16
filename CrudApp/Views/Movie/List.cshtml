@@ -1,0 +1,247 @@
+﻿@{
+
+}
+
+
+<div ng-app="movieModule">
+    <div ng-controller="movieListController as dashboard">
+        <div class="container listBlock">
+            <h1>My Movies</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th><h3>Title</h3></th>
+                        <th><h3>Rating</h3></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="movie in dashboard.movieList" ng-click="dashboard.getMovieInfoFromMovieApi(movie.Id, movie.Rating)">
+                        <td><img ng-src="https://image.tmdb.org/t/p/w45{{movie.Poster_path}}" width="45" height="68"></td>
+                        <td><h5>{{movie.Title}}</h5></td>
+                        <td><uib-rating ng-model="movie.Rating" data-readonly="true"></uib-rating></td>
+                        <td><button type="button" class="btn btn-primary" ng-click="dashboard.removeMovie(movie.Id)">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script type="text/ng-template" id="modalContent.html">
+        <div class="container-fluid">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2 class="text-left">{{mc.movieInfo.title}}</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class=" col-md-12">
+                        <h4 class="text-left">{{mc.movieInfo.release_date}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img ng-src="https://image.tmdb.org/t/p/w500{{mc.movieInfo.poster_path}}" width="350" height="500" style="float:left;">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>{{mc.movieInfo.overview}}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h4 class="section-heading">Update Rating</h4>
+                                <uib-rating ng-model="mc.movieInfo.rating"></uib-rating>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="mc.updateMovie()">Update</button>
+            <button class="btn btn-danger" ng-click="mc.removeMovie(mc.movieInfo.id)">Remove</button> 
+            <button class="btn btn-warning" ng-click="mc.cancel()">Cancel</button>
+        </div>
+    </script>
+
+</div>
+
+
+@section Scripts{
+    <script src="~/Scripts/Services/movieModule.js"></script>
+    <script src="~/Scripts/Services/movieServices.js"></script>
+    <script type="text/javascript">
+        (function () {
+            "use strict"
+
+            angular.module("movieModule")
+                .controller("movieListController", MovieListController);
+
+            MovieListController.$inject = ["$scope", "$http", "$uibModal"];
+
+            function MovieListController($scope, $http, $uibModal) {
+                var vm = this;
+                vm.$scope = $scope;
+                vm.$http = $http
+                vm.$uibModal = $uibModal;
+
+                vm.movieList = {};
+
+                vm.getAllMovies = _getAllMovies;
+                vm.getAllSuccess = _getAllSuccess;
+                vm.getAllError = _getAllError;
+                vm.removeMovie = _removeMovie;
+                vm.removalSuccess = _removalSuccess;
+                vm.removalFailure = _removalFailure;
+                vm.getMovieInfoFromMovieApi = _getMovieInfoFromMovieApi;
+                vm.openModal = _openModal;
+
+                function _getAllMovies() {
+                    return vm.$http({
+                        method: "GET",
+                        url: "/api/movie/getAll",
+                    }).then(vm.getAllSuccess, vm.getAllError);
+                }
+
+                _getAllMovies();
+
+                function _getAllSuccess(response) {
+                    vm.movieList = response.data;
+                }
+
+                function _getAllError() {
+                    console.log("error");
+                }
+
+                function _removeMovie(movieId) {
+                    return vm.$http({
+                        method: "DELETE",
+                        url: "/api/movie/deleteMovie/" + movieId
+                    }).then(vm.removalSuccess, vm.removalFailure);
+                }
+
+                function _removalSuccess() {
+                    console.log("deleted");
+                    _getAllMovies()
+                }
+
+                function _removalFailure() {
+                    console.log("removal failed");
+                }
+
+                function _getMovieInfoFromMovieApi(movieId, rating) {
+                    function attachMovieRating(response) {
+                        _openModal(response, rating);
+                    }
+
+                    return vm.$http({
+                        method: "GET",
+                        url: "/api/movie/getExternalMovie/" + movieId
+                    }).then(attachMovieRating, vm.onSearchError);
+                }
+
+                function _openModal(movieInfo, rating) {
+                    var modalInstance = vm.$uibModal.open({
+                        animation: true,
+                        templateUrl: 'modalContent.html',
+                        controller: 'modalController as mc',
+                        size: 'lg',
+                        resolve: {
+                            items: function () {
+                                movieInfo.data.rating = rating;
+                                return movieInfo;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (movieInfoFromModalCtrler) {
+                        vm.movieInfo = movieInfoFromModalCtrler;
+                        _getAllMovies();
+                    }, function () {
+                        console.log('Modal dismissed at: ' + new Date());
+                    });
+                }
+
+            }
+        })();
+
+        (function () {
+            "use strict"
+
+            angular.module("movieModule")
+                .controller('modalController', ModalController);
+
+            ModalController.$inject = ["$scope", "$uibModalInstance", "$http", "toastr", "items"];
+
+            function ModalController($scope, $uibModalInstance, $http, toastr, items) {
+                var vm = this;
+                vm.$scope = $scope;
+                vm.$http = $http;
+                vm.toastr = toastr;
+                vm.$uibModalInstance = $uibModalInstance;
+
+                vm.movieInfo = items.data;
+
+                vm.updateMovie = _updateMovie;
+                vm.removeMovie = _removeMovie;
+                vm.ok = _ok;
+                vm.updateError = _updateError;
+                vm.removeMovie = _removeMovie;
+                vm.removalSuccess = _removalSuccess;
+                vm.removalFailure = _removalFailure;
+                vm.cancel = _cancel;
+
+                function _updateMovie() {
+                    return vm.$http({
+                        method: "PUT",
+                        url: "/api/movie/update",
+                        data: vm.movieInfo
+                    }).then(vm.ok, vm.updateError);
+                };
+
+                function _ok() {
+                    vm.toastr.success("","Updated!");
+                    vm.$uibModalInstance.close(vm.movieInfo)
+                }
+
+                function _updateError() {
+                    console.log("update failed");
+                }
+
+                //function _removeMovie() {
+                //    //provide notification here to confirm.
+                //    vm.toastr.info("Movie has been removed from your favorites.","Information");
+                //    vm.$uibModalInstance.dismiss('cancel');
+                //};
+
+                function _removeMovie(movieId) {
+                    return vm.$http({
+                        method: "DELETE",
+                        url: "/api/movie/deleteMovie/" + movieId
+                    }).then(vm.removalSuccess, vm.removalFailure);
+                }
+
+                function _removalSuccess() {
+                    vm.toastr.info("Movie has been removed from your favorites.", "Information");
+                    console.log("deleted");
+                    vm.$uibModalInstance.close(vm.movieInfo);
+                }
+
+                function _removalFailure() {
+                    vm.toastr.info("Movie wasn't removed from your favorites.", "Error");
+                    console.log("removal failed");
+                }
+
+                function _cancel() {
+                    vm.$uibModalInstance.dismiss('cancel');
+                }
+            }
+            //add cancel button and remove button
+        })();
+    </script>
+}
