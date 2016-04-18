@@ -6,14 +6,13 @@
 <div ng-app="movieModule">
     <div ng-controller="movieListController as dashboard">
         <div class="container listBlock">
-            <h1>My Movies</h1>
+            <h1>Favorites</h1>
             <table class="table">
                 <thead>
                     <tr>
                         <th></th>
                         <th><h3>Title</h3></th>
                         <th><h3>Rating</h3></th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -21,7 +20,6 @@
                         <td><img ng-src="https://image.tmdb.org/t/p/w45{{movie.Poster_path}}" width="45" height="68"></td>
                         <td><h5>{{movie.Title}}</h5></td>
                         <td><uib-rating ng-model="movie.Rating" data-readonly="true"></uib-rating></td>
-                        <td><button type="button" class="btn btn-primary" ng-click="dashboard.removeMovie(movie.Id)">Remove</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -63,8 +61,8 @@
             </div>
         </div>
         <div class="modal-footer">
+            <button class="btn btn-danger pull-left" ng-click="mc.removeMovie(mc.movieInfo.id)">Remove</button> 
             <button class="btn btn-primary" ng-click="mc.updateMovie()">Update</button>
-            <button class="btn btn-danger" ng-click="mc.removeMovie(mc.movieInfo.id)">Remove</button> 
             <button class="btn btn-warning" ng-click="mc.cancel()">Cancel</button>
         </div>
     </script>

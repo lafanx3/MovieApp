@@ -10,35 +10,42 @@
 <div class="intro-details">
     <div ng-app="movieModule">
         <div ng-controller="movieInfoController as dashboard">
+            <div class="container detailsBlock">
             <h2 class="text-left">{{dashboard.movieInfo.title}}</h2>
             <h4 class="text-left">{{dashboard.movieInfo.release_date}}</h4>
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-6">
-                        <img ng-src="https://image.tmdb.org/t/p/w500{{dashboard.movieInfo.poster_path}}" width="450" height="600" style="float:left;">
+                        <img ng-src="https://image.tmdb.org/t/p/w500{{dashboard.movieInfo.poster_path}}" width="450" height="600" style="float:left;" ng-if="dashboard.movieInfo.poster_path">
                     </div>
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-md-12">
                                 <p>{{dashboard.movieInfo.overview}}</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-12">
                                 <h4 class="section-heading">Rate it!</h4>
                                 <uib-rating ng-model="dashboard.movieInfo.rating"></uib-rating>
                             </div>
-                            <div class="col-md-4">
-                                <button type="button" class="btn btn-primary" ng-click="dashboard.addMovieToList()" ng-if="!dashboard.moviePresent">Add to Favorites</button>
-                                <button type="button" class="btn btn-primary" ng-click="dashboard.removeMovie()" ng-if="dashboard.moviePresent">Remove Movie</button>
-                                <button type="button" class="btn btn-primary" ng-click="dashboard.updateMovie()" ng-if="dashboard.moviePresent">Update Rating</button>
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-primary btn-details" ng-click="dashboard.addMovieToList()" ng-if="!dashboard.moviePresent">Add to Favorites</button>
+                                <button type="button" class="btn btn-primary btn-details" ng-click="dashboard.updateMovie()" ng-if="dashboard.moviePresent">Update Rating</button>
                             </div>
-                            <div class="col-md-4">
-                                <a href="~/" class="btn btn-primary">Back</a>
+
+                            <div class="col-md-6">
+                                <a href="~/" class="btn btn-primary btn-details">Back</a>
+                            </div>
+                            <div class="col-md-6">
+
+
+                                <button type="button" class="btn btn-danger btn-details" ng-click="dashboard.removeMovie()" ng-if="dashboard.moviePresent">Remove Movie</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+            </div>
     </div>
 </div>
 @section Scripts{

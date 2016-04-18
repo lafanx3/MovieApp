@@ -20,11 +20,10 @@
                 <div class="intro-lead-in">Search for a Movie!</div>
                 <button type="button" class="page-scroll btn btn-xl" ng-click="dashboard.detailsPage()">Search</button>
             </div>
-            {{dashboard.searchCriteria.selectedMovie}}
             <script type="text/ng-template" id="itemTpl.html">
                 <a>
                     <div style="width:800px">
-                        <img ng-src="https://image.tmdb.org/t/p/w45{{match.model.poster_path}}" width="45" height="68">
+                        <img ng-src="https://image.tmdb.org/t/p/w45{{match.model.poster_path}}" width="45" height="68" ng-if="match.model.poster_path">
                         <span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span><span style="float:right">{{match.model.release_date}}</span>
                     </div>
                 </a>
@@ -80,7 +79,7 @@
 
                     function _onSearchSuccess(response) {
                         vm.searchResults = response.data.results;
-                        return vm.$filter('limitTo')(response.data.results, 8);
+                        return vm.$filter('limitTo')(response.data.results, 6);
                     }
 
                     function _onSearchError(response) {

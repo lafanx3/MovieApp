@@ -684,6 +684,7 @@
     <Content Include="Scripts\ng\ckeditor\skins\moono\readme.md" />
     <Content Include="Views\Movie\Details.cshtml" />
     <Content Include="Views\Movie\List.cshtml" />
+    <Content Include="Views\Movie\About.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

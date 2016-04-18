@@ -177,18 +177,6 @@ namespace CrudApp.Services
     }
 }
 
-//things to do
-
-//MY MOVIES -LIST////////////
-
-
-
-//let user know that when hovering over a record it should be made known it is clickable. Can remove the remove button from the row after.
-
-
-//for all ratings disable blue highlight around stars.
-//fix layout of details page, once user clicks on add movie, update and remove buttons should be separated.
-
 
 
 

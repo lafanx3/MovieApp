@@ -40,5 +40,11 @@ namespace CrudApp.Controllers
         {
             return View();
         }
+
+        [Route("About"), HttpGet]
+        public ActionResult About()
+        {
+            return View();
+        }
     }
 }
