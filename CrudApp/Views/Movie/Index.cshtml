@@ -67,8 +67,6 @@
                     vm.onSearchError = _onSearchError;
                     vm.setMovieInfo = _setMovieInfo;
                     vm.detailsPage = _detailsPage;
-                    //vm.movieStatusSuccess = _movieStatusSuccess;
-                    //vm.movieStatusError = _movieStatusError;
 
                     function _searchMovies(value) {
                         return vm.$http({
@@ -93,25 +91,7 @@
 
                     function _detailsPage() {
                         vm.$window.location.href = "/Movie/Details/" + vm.selectedMovie.id;
-                        ////checks if movie is present in db ajax call
-                        //return vm.$http({
-                        //    method: "GET",
-                        //    url: "/api/movie/getMovieStatus/" + vm.selectedMovie.id,
-                        //}).then(vm.movieStatusSuccess, vm.movieStatusError)
                     }
-
-                    //function _movieStatusSuccess(response) {
-                    //    if (response.data) {
-                    //        //movie already present in db, so direct user to different view that gives the user the option of removing from movie from their list to watch.
-                    //    } else {
-                    //        //movie not in db, so give user the opporunity to insert this movie to the db.
-                    //        vm.$window.location.href = "/Movie/Details/" + vm.selectedMovie.id;
-                    //    }
-                    //}
-
-                    //function _movieStatusError() {
-                    //    console.log("a movie status api error occured");
-                    //}
                 }
             })();
         </script>

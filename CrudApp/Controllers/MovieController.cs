@@ -12,6 +12,13 @@ namespace CrudApp.Controllers
 {
     public class MovieController : Controller
     {
+        private IMovieService _movieService;
+
+        public MovieController(IMovieService movieService)
+        {
+            _movieService = movieService;
+        }
+
         [Route("~/")]
         public ActionResult Index()
         {
@@ -23,10 +30,10 @@ namespace CrudApp.Controllers
         {//make service call to check if move present in db, if present redirect to different view
             MovieViewModel movieViewModel = new MovieViewModel();
             movieViewModel.Id = id;
-            movieViewModel.MoviePresent = MovieService.CheckIfMoviePresent(id);
+            movieViewModel.MoviePresent = _movieService.CheckIfMoviePresent(id);
             if (movieViewModel.MoviePresent)
             {
-                movieViewModel.Rating = MovieService.GetMovie(id).Rating;
+                movieViewModel.Rating = _movieService.GetMovie(id).Rating;
             }
             else
             {

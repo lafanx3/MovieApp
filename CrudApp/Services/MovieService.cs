@@ -13,11 +13,11 @@ using System.Web.Configuration;
 
 namespace CrudApp.Services
 {
-    public class MovieService
+    public class MovieService : IMovieService
     {
         private static readonly string _apiKey = WebConfigurationManager.AppSettings["MovieDbKey"];
 
-        public static void Insert(MovieAddRequest model)
+        public void Insert(MovieAddRequest model)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["MovieConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -35,7 +35,7 @@ namespace CrudApp.Services
             }
         }
 
-        public static bool CheckIfMoviePresent(int id)
+        public bool CheckIfMoviePresent(int id)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["MovieConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -58,7 +58,7 @@ namespace CrudApp.Services
             }
         }
 
-        public static Movie GetMovie(int id)
+        public Movie GetMovie(int id)
         {
             Movie movie = null;
             string connectionString = ConfigurationManager.ConnectionStrings["MovieConnection"].ConnectionString;
@@ -83,7 +83,7 @@ namespace CrudApp.Services
             return movie;
         }
 
-        public static void Delete(int id)
+        public void Delete(int id)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["MovieConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -98,7 +98,7 @@ namespace CrudApp.Services
             }
         }
 
-        public static List<Movie> GetAll()
+        public List<Movie> GetAll()
         {
             List<Movie> movies = null;
             Movie movie = null;
@@ -125,7 +125,7 @@ namespace CrudApp.Services
             return movies;
         }
 
-        public static void Update(MovieUpdateRequest model)
+        public void Update(MovieUpdateRequest model)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["MovieConnection"].ConnectionString;
 
@@ -143,7 +143,7 @@ namespace CrudApp.Services
         }
 
         //calls to TheMovieDB api
-        public static async Task<JObject> GetExternalMovie(int id)
+        public async Task<JObject> GetExternalMovie(int id)
         {
             
             using (HttpClient client = new HttpClient())
@@ -160,7 +160,7 @@ namespace CrudApp.Services
             }
         }
 
-        public static async Task<JObject> SearchExternalMovie(string value)
+        public async Task<JObject> SearchExternalMovie(string value)
         {
             using(HttpClient client = new HttpClient())
             {

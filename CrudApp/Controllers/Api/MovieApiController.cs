@@ -15,12 +15,19 @@ namespace CrudApp.Controllers.Api
     [RoutePrefix("api/movie")]
     public class MovieApiController : ApiController
     {
+        private IMovieService _movieService;
+
+        public MovieApiController(IMovieService movieService)
+        {
+            _movieService = movieService;
+        }
+
         [Route, HttpPost]
         public HttpResponseMessage Insert(MovieAddRequest model)
         {
             if (ModelState.IsValid)
             {
-                MovieService.Insert(model);
+                _movieService.Insert(model);
                 return Request.CreateResponse(HttpStatusCode.OK, "Success");
 
             }
@@ -30,27 +37,12 @@ namespace CrudApp.Controllers.Api
             }
         }
 
-        //not used atm
-        [Route("getMovieStatus/{id:int}"), HttpGet]
-        public HttpResponseMessage GetMovieStatus(int id)
-        {
-            if (ModelState.IsValid)
-            {
-                bool movieStatus = MovieService.CheckIfMoviePresent(id);
-                return Request.CreateResponse(HttpStatusCode.OK, movieStatus);
-            }
-            else
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Api movie status failed");
-            }
-        }
-
         [Route("deleteMovie/{id:int}"), HttpDelete]
         public HttpResponseMessage Delete(int id)
         {
             try
             {
-                MovieService.Delete(id);
+                _movieService.Delete(id);
                 return Request.CreateResponse(HttpStatusCode.OK, "Success");
             }
             catch
@@ -62,7 +54,7 @@ namespace CrudApp.Controllers.Api
         [Route("getAll"), HttpGet]
         public HttpResponseMessage GetAll()
         {
-            List<Movie> movies = MovieService.GetAll();
+            List<Movie> movies = _movieService.GetAll();
             return Request.CreateResponse(HttpStatusCode.OK, movies);
         }
 
@@ -71,7 +63,7 @@ namespace CrudApp.Controllers.Api
         {
             if (ModelState.IsValid)
             {
-                MovieService.Update(model);
+                _movieService.Update(model);
                 return Request.CreateResponse(HttpStatusCode.OK, "movie updated successfully");
             }
             else
@@ -85,7 +77,7 @@ namespace CrudApp.Controllers.Api
         {
             try
             {
-                JObject response = await MovieService.GetExternalMovie(id);
+                JObject response = await _movieService.GetExternalMovie(id);
                 return Request.CreateResponse(HttpStatusCode.OK, response);
             }
             catch
@@ -99,7 +91,7 @@ namespace CrudApp.Controllers.Api
         {
             try
             {
-                JObject response = await MovieService.SearchExternalMovie(value);
+                JObject response = await _movieService.SearchExternalMovie(value);
                 return Request.CreateResponse(HttpStatusCode.OK, response);
             }
             catch
